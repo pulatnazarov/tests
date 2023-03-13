@@ -1,27 +1,49 @@
 package wallet
 
-import "errors"
+import (
+	"errors"
+	"fmt"
+)
 
 var (
-	ErrInsufficientFunds = errors.New("not enough money")
+	ErrInsufficientFunds = errors.New("not enough funds")
 )
 
 type Wallet struct {
-	balance uint
+	id      int
+	balance int
 }
 
-func (w *Wallet) Deposit(amount uint) {
+func NewWallet(id, balance int) (Wallet, error) {
+	if balance < 0 {
+		return Wallet{}, fmt.Errorf("negative starting balance: %d", balance)
+	}
+
+	return Wallet{
+		id:      id,
+		balance: balance,
+	}, nil
+}
+
+func (w *Wallet) Deposit(amount int) error {
+	if amount < 0 {
+		return fmt.Errorf("negative deposit amount: %d", amount)
+	}
+
 	w.balance += amount
+
+	return nil
 }
 
-func (w *Wallet) Balance() uint {
+func (w *Wallet) Balance() int {
 	return w.balance
 }
 
-func (w *Wallet) Withdraw(amount uint) error {
-	if amount > w.balance {
+func (w *Wallet) Withdraw(amount int) error {
+	if w.balance < amount {
 		return ErrInsufficientFunds
 	}
+
 	w.balance -= amount
 	return nil
 }
